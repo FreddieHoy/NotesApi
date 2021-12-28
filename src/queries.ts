@@ -32,15 +32,18 @@ export const getUserById = (request: Request, response: Response) => {
 
 export const createUser = (request: Request, response: Response) => {
   const { name, email } = request.body;
-
   pool.query(
-    "INSERT INTO users (name, email) VALUES ($1, $2)",
+    "INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *",
     [name, email],
     (error, result) => {
       if (error) {
         throw error;
       }
-      response.status(201).send(`User added with ID: ${result.oid}`);
+      // should have safer type checking..
+      const newUserId = result.rows[0].id;
+      response
+        .status(201)
+        .send(`User added with ID: ${newUserId ?? "unknown"}`);
     }
   );
 };

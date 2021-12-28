@@ -13,7 +13,7 @@ app.use(
 );
 
 app.get("/", (request, response) => {
-  response.json({ info: "Node.js, Express, and Postgres API asdfa" });
+  response.json({ info: "Node.js, Express, and Postgres API" });
 });
 
 app.get("/users", db.getUsers);
