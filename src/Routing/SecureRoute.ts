@@ -18,16 +18,17 @@ export const secureRoute = (
 
   const { id } = request.body;
 
-  console.log(token);
-
   jwt.verify(token, secret, (err, payload) => {
     if (err) return response.sendStatus(401);
 
     if (!payload) throw new Error("No payload on request");
 
+    // todo I shouldn't need the userId at this point.. should be able to find the user from token or something
+    const { userId } = request.body;
+
     pool.query(
       "SELECT * FROM users WHERE id = $1",
-      [payload.sub],
+      [userId],
       (error, results) => {
         if (error) {
           throw error;

@@ -29,3 +29,23 @@ export const createNote = (request: Request, response: Response) => {
     }
   );
 };
+
+export const editNote = (request: Request, response: Response) => {
+  const { id, userId, heading, content, toDoItem, checked } = request.body;
+  pool.query(
+    `UPDATE notes SET  
+     heading = %1,
+     content = %2,
+     toDoItem = %3,
+     checked = %4
+      WHERE id = %5
+      `,
+    [heading, content, toDoItem, checked, id],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).json(results.rows);
+    }
+  );
+};
