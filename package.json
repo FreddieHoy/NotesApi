@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --config nodemon.json ./app.ts",
-    "start": "nodemon index.ts"
+    "start": "nodemon index.ts",
+    "createdb": "psql -d postgres -U me < src/scripts/seed.sql"
   },
   "author": "",
   "license": "ISC",
