@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { pool, secret } from "../dbPool";
+import bcrypt from "bcrypt";
 
 export const getUsers = (request: Request, response: Response) => {
   pool.query("SELECT * FROM users ORDER BY id ASC", (error, results) => {
@@ -70,7 +71,6 @@ export const deleteUser = (request: Request, response: Response) => {
 export const logInUser = (request: Request, response: Response) => {
   // There is no types on the body - might be a way to define this?
   const { email, password } = request.body;
-  console.log("before", email, password);
 
   pool.query(
     "SELECT * FROM users WHERE email = $1",
@@ -81,45 +81,70 @@ export const logInUser = (request: Request, response: Response) => {
       }
 
       const user = results.rows[0];
-      console.log("after", results.rows);
 
       if (!user) {
         throw new Error("User not found.");
       }
 
-      const { password: savedPassword } = user;
+      const { password: hashedPassword } = user;
 
-      if (savedPassword !== password) {
-        throw new Error("Incorrect password.");
-      }
+      bcrypt.compare(password, hashedPassword, function (err, result) {
+        if (err) {
+          throw new Error(err.message);
+        }
 
-      const token = jwt.sign({ sub: user._id }, secret, { expiresIn: "6h" });
-      // send it to the client
-      response.json({ message: `Welcome back ${user.name}!`, token, user });
+        if (!result) {
+          throw new Error("Incorrect");
+        } else {
+          const token = jwt.sign({ sub: user._id }, secret, {
+            expiresIn: "6h",
+          });
+          response.json({ message: `Welcome back ${user.name}!`, token, user });
+        }
+      });
     }
   );
 };
 
-export const registerUser = (request: Request, response: Response) => {
+export const registerUser = async (request: Request, response: Response) => {
   const { name, email, password, confirmPassword } = request.body;
-  console.log();
+
+  if (!name || !email || !password || !confirmPassword) {
+    throw new Error("Please enter all fields");
+  }
   if (password !== confirmPassword) {
     throw new Error("Password confirmation not matching");
   }
 
-  pool.query(
-    "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *",
-    [name, email, password],
-    (error, result) => {
-      if (error) {
-        throw error;
-      }
-      // should have safer type checking..
-      const newUserId = result.rows[0].id;
+  const hashedPassword = await bcrypt.hash(password, 10);
 
-      response
-        .status(201)
-        .send(`User added with ID: ${newUserId ?? "unknown"}`);
+  pool.query(
+    `SELECT * FROM users
+        WHERE email = $1`,
+    [email],
+    (err, results) => {
+      if (err) {
+        throw new Error(err.message);
+      }
+      if (results.rows.length > 0) {
+        throw new Error("Email already registered");
+      } else {
+        pool.query(
+          "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *",
+          [name, email, hashedPassword],
+          (error, result) => {
+            if (error) {
+              throw error;
+            }
+            // should have safer type checking..
+            const newUserId = result.rows[0].id;
+
+            response
+              .status(201)
+              .send(`User added with ID: ${newUserId ?? "unknown"}`);
+          }
+        );
+      }
     }
   );
 };

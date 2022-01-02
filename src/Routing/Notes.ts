@@ -15,6 +15,21 @@ export const getNotes = (request: Request, response: Response) => {
   );
 };
 
+export const getNote = (request: Request, response: Response) => {
+  const { id } = request.params;
+  const { userId } = request.body;
+  pool.query(
+    "SELECT * FROM notes WHERE userId = $1, id = $2 ORDER BY id ASC",
+    [userId, id],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).json(results.rows);
+    }
+  );
+};
+
 // Feels as though now that I have logged in I shouldn't need to search by userId
 export const createNote = (request: Request, response: Response) => {
   const { userId, heading, content, toDoItem, checked } = request.body;
@@ -31,16 +46,33 @@ export const createNote = (request: Request, response: Response) => {
 };
 
 export const editNote = (request: Request, response: Response) => {
-  const { id, userId, heading, content, toDoItem, checked } = request.body;
+  const { id, heading, content, toDoItem, checked } = request.body;
   pool.query(
     `UPDATE notes SET  
-     heading = %1,
-     content = %2,
-     toDoItem = %3,
-     checked = %4
-      WHERE id = %5
+      heading = $1,
+      content = $2,
+      toDoItem = $3,
+      checked = $4
+      WHERE id = $5 
+      RETURNING *
       `,
     [heading, content, toDoItem, checked, id],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).json(results.rows);
+    }
+  );
+};
+
+export const deleteNote = (request: Request, response: Response) => {
+  const { id } = request.body;
+  pool.query(
+    `DELETE From notes 
+      WHERE id = $1
+    `,
+    [id],
     (error, results) => {
       if (error) {
         throw error;

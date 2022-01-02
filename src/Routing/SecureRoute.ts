@@ -16,8 +16,6 @@ export const secureRoute = (
 
   const token = request.headers.authorization.replace("Bearer ", "");
 
-  const { id } = request.body;
-
   jwt.verify(token, secret, (err, payload) => {
     if (err) return response.sendStatus(401);
 
