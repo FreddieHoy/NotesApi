@@ -2,10 +2,11 @@ import { Router } from "express";
 import * as UserDb from "./Users";
 import * as NoteDb from "./Notes";
 import { secureRoute } from "./SecureRoute";
+import passport from "passport";
 
 export const router = Router();
 
-router.post("/login", UserDb.logInUser);
+router.post("/login", passport.authenticate("local"), UserDb.logInUser);
 router.post("/register", UserDb.registerUser);
 
 router.get("/notes", secureRoute, NoteDb.getNotes);

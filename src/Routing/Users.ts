@@ -1,7 +1,8 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { pool, secret } from "../dbPool";
 import bcrypt from "bcrypt";
+import {} from "passport";
 
 export const getUsers = (request: Request, response: Response) => {
   pool.query("SELECT * FROM users ORDER BY id ASC", (error, results) => {
@@ -68,52 +69,64 @@ export const deleteUser = (request: Request, response: Response) => {
   });
 };
 
-export const logInUser = (request: Request, response: Response) => {
+export const logInUser = (
+  request: Request,
+  response: Response,
+  next: NextFunction
+) => {
   // There is no types on the body - might be a way to define this?
   const { email, password } = request.body;
 
-  pool.query(
-    "SELECT * FROM users WHERE email = $1",
-    [email],
-    (error, results) => {
-      if (error) {
-        throw error;
-      }
+  console.log("loggin in ATTapemttTTT");
 
-      const user = results.rows[0];
+  if (request.isAuthenticated()) {
+    console.log("request", request);
+    response.json({ message: `Welcome back !` });
+  }
+  next();
+  // pool.query(
+  //   "SELECT * FROM users WHERE email = $1",
+  //   [email],
+  //   (error, results) => {
+  //     if (error) {
+  //       console.log("error from db query", error.message);
+  //       throw error;
+  //     }
 
-      if (!user) {
-        throw new Error("User not found.");
-      }
+  //     const user = results.rows[0];
 
-      const { password: hashedPassword } = user;
+  //     if (!user) {
+  //       console.log("User not found.");
+  //     }
 
-      bcrypt.compare(password, hashedPassword, function (err, result) {
-        if (err) {
-          throw new Error(err.message);
-        }
+  //     const { password: hashedPassword } = user;
 
-        if (!result) {
-          throw new Error("Incorrect");
-        } else {
-          const token = jwt.sign({ sub: user._id }, secret, {
-            expiresIn: "6h",
-          });
-          response.json({ message: `Welcome back ${user.name}!`, token, user });
-        }
-      });
-    }
-  );
+  //     bcrypt.compare(password, hashedPassword, function (err, result) {
+  //       if (err) {
+  //         console.log("Error from compare", err.message);
+  //       }
+
+  //       if (!result) {
+  //         console.log("Incorrect");
+  //       } else {
+  //         const token = jwt.sign({ sub: user._id }, secret, {
+  //           expiresIn: "6h",
+  //         });
+  //         response.json({ message: `Welcome back ${user.name}!`, token, user });
+  //       }
+  //     });
+  //   }
+  // );
 };
 
 export const registerUser = async (request: Request, response: Response) => {
   const { name, email, password, confirmPassword } = request.body;
 
   if (!name || !email || !password || !confirmPassword) {
-    throw new Error("Please enter all fields");
+    console.log("Please enter all fields");
   }
   if (password !== confirmPassword) {
-    throw new Error("Password confirmation not matching");
+    console.log("Password confirmation not matching");
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -124,16 +137,17 @@ export const registerUser = async (request: Request, response: Response) => {
     [email],
     (err, results) => {
       if (err) {
-        throw new Error(err.message);
+        console.log("error from dbquery", err.message);
       }
       if (results.rows.length > 0) {
-        throw new Error("Email already registered");
+        console.log("Email already registered");
       } else {
         pool.query(
           "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *",
           [name, email, hashedPassword],
           (error, result) => {
             if (error) {
+              console.log("error from reg db", error.message);
               throw error;
             }
             // should have safer type checking..
