@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { pool, secret } from "../dbPool";
 import bcrypt from "bcrypt";
-import {} from "passport";
 
 export const getUsers = (request: Request, response: Response) => {
   pool.query("SELECT * FROM users ORDER BY id ASC", (error, results) => {
@@ -77,46 +76,46 @@ export const logInUser = (
   // There is no types on the body - might be a way to define this?
   const { email, password } = request.body;
 
-  console.log("loggin in ATTapemttTTT");
+  // console.log("loggin in ATTapemttTTT");
 
-  if (request.isAuthenticated()) {
-    console.log("request", request);
-    response.json({ message: `Welcome back !` });
-  }
-  next();
-  // pool.query(
-  //   "SELECT * FROM users WHERE email = $1",
-  //   [email],
-  //   (error, results) => {
-  //     if (error) {
-  //       console.log("error from db query", error.message);
-  //       throw error;
-  //     }
+  // if (request.isAuthenticated()) {
+  //   console.log("request", request);
+  //   response.json({ message: `Welcome back !` });
+  // }
+  // next();
+  pool.query(
+    "SELECT * FROM users WHERE email = $1",
+    [email],
+    (error, results) => {
+      if (error) {
+        console.log("error from db query", error.message);
+        throw error;
+      }
 
-  //     const user = results.rows[0];
+      const user = results.rows[0];
 
-  //     if (!user) {
-  //       console.log("User not found.");
-  //     }
+      if (!user) {
+        console.log("User not found.");
+      }
 
-  //     const { password: hashedPassword } = user;
+      const { password: hashedPassword } = user;
 
-  //     bcrypt.compare(password, hashedPassword, function (err, result) {
-  //       if (err) {
-  //         console.log("Error from compare", err.message);
-  //       }
+      bcrypt.compare(password, hashedPassword, function (err, result) {
+        if (err) {
+          console.log("Error from compare", err.message);
+        }
 
-  //       if (!result) {
-  //         console.log("Incorrect");
-  //       } else {
-  //         const token = jwt.sign({ sub: user._id }, secret, {
-  //           expiresIn: "6h",
-  //         });
-  //         response.json({ message: `Welcome back ${user.name}!`, token, user });
-  //       }
-  //     });
-  //   }
-  // );
+        if (!result) {
+          console.log("Incorrect");
+        } else {
+          const token = jwt.sign({ sub: user.id }, secret, {
+            expiresIn: "6h",
+          });
+          response.json({ message: `Welcome back ${user.name}!`, token, user });
+        }
+      });
+    }
+  );
 };
 
 export const registerUser = async (request: Request, response: Response) => {

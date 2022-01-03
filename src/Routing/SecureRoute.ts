@@ -22,22 +22,28 @@ export const secureRoute = (
     if (!payload) throw new Error("No payload on request");
 
     // todo I shouldn't need the userId at this point.. should be able to find the user from token or something
-    const { userId } = request.body;
+    const userId = payload.sub;
 
-    pool.query(
-      "SELECT * FROM users WHERE id = $1",
-      [userId],
-      (error, results) => {
-        if (error) {
-          throw error;
+    if (userId) {
+      pool.query(
+        "SELECT * FROM users WHERE id = $1",
+        [userId],
+        (error, results) => {
+          if (error) {
+            throw error;
+          }
+
+          const user = results.rows[0];
+
+          if (!user) return response.sendStatus(401);
+
+          request.user = payload;
+
+          next();
         }
-
-        const user = results.rows[0];
-
-        if (!user) return response.sendStatus(401);
-
-        next();
-      }
-    );
+      );
+    } else {
+      response.sendStatus(404).json("No user found please login again");
+    }
   });
 };

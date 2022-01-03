@@ -2,7 +2,9 @@ import { Request, Response } from "express";
 import { pool } from "../dbPool";
 
 export const getNotes = (request: Request, response: Response) => {
-  const { userId } = request.body;
+  // typing isn't able to find jwt
+  const userId = (request.user as any).sub;
+
   pool.query(
     "SELECT * FROM notes WHERE userId = $1 ORDER BY id ASC",
     [userId],
@@ -17,7 +19,8 @@ export const getNotes = (request: Request, response: Response) => {
 
 export const getNote = (request: Request, response: Response) => {
   const { id } = request.params;
-  const { userId } = request.body;
+  const userId = (request.user as any).sub;
+
   pool.query(
     "SELECT * FROM notes WHERE userId = $1, id = $2 ORDER BY id ASC",
     [userId, id],
@@ -32,7 +35,9 @@ export const getNote = (request: Request, response: Response) => {
 
 // Feels as though now that I have logged in I shouldn't need to search by userId
 export const createNote = (request: Request, response: Response) => {
-  const { userId, heading, content, toDoItem, checked } = request.body;
+  const { heading, content, toDoItem, checked } = request.body;
+  const userId = (request.user as any).sub;
+
   pool.query(
     "INSERT INTO notes (userId, heading, content, toDoItem, checked) VALUES ($1, $2, $3, $4, $5) RETURNING *",
     [userId, heading, content, toDoItem, checked],
@@ -47,6 +52,7 @@ export const createNote = (request: Request, response: Response) => {
 
 export const editNote = (request: Request, response: Response) => {
   const { id, heading, content, toDoItem, checked } = request.body;
+
   pool.query(
     `UPDATE notes SET  
       heading = $1,
