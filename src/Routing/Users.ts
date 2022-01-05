@@ -111,7 +111,11 @@ export const logInUser = (
           const token = jwt.sign({ sub: user.id }, secret, {
             expiresIn: "6h",
           });
-          response.json({ message: `Welcome back ${user.name}!`, token, user });
+          response.json({
+            message: `Welcome back ${user.name}!`,
+            token,
+            user,
+          });
         }
       });
     }

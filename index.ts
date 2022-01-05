@@ -3,6 +3,10 @@ import bodyParser from "body-parser";
 import * as db from "./src/Routing/Users";
 import { router } from "./src/Routing/Router";
 
+import dotEnv from "dotenv";
+
+dotEnv.config();
+
 const app = express();
 const port = 8000;
 
