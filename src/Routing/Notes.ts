@@ -1,9 +1,10 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { pool } from "../dbPool";
+import { AuthRequest } from "./types";
 
-export const getNotes = (request: Request, response: Response) => {
+export const getNotes = (request: AuthRequest, response: Response) => {
   // typing isn't able to find jwt
-  const userId = (request.user as any).sub;
+  const userId = request.user?.sub;
 
   pool.query(
     "SELECT * FROM notes WHERE userId = $1 ORDER BY id ASC",
@@ -17,9 +18,9 @@ export const getNotes = (request: Request, response: Response) => {
   );
 };
 
-export const getNote = (request: Request, response: Response) => {
+export const getNote = (request: AuthRequest, response: Response) => {
   const { id } = request.params;
-  const userId = (request.user as any).sub;
+  const userId = request.user?.sub;
 
   pool.query(
     "SELECT * FROM notes WHERE userId = $1, id = $2 ORDER BY id ASC",
@@ -34,9 +35,9 @@ export const getNote = (request: Request, response: Response) => {
 };
 
 // Feels as though now that I have logged in I shouldn't need to search by userId
-export const createNote = (request: Request, response: Response) => {
+export const createNote = (request: AuthRequest, response: Response) => {
   const { heading, content, toDoItem, checked } = request.body;
-  const userId = (request.user as any).sub;
+  const userId = request.user?.sub;
 
   pool.query(
     "INSERT INTO notes (userId, heading, content, toDoItem, checked) VALUES ($1, $2, $3, $4, $5) RETURNING *",
@@ -50,7 +51,7 @@ export const createNote = (request: Request, response: Response) => {
   );
 };
 
-export const editNote = (request: Request, response: Response) => {
+export const editNote = (request: AuthRequest, response: Response) => {
   const { id, heading, content, toDoItem, checked } = request.body;
 
   pool.query(
@@ -72,7 +73,7 @@ export const editNote = (request: Request, response: Response) => {
   );
 };
 
-export const deleteNote = (request: Request, response: Response) => {
+export const deleteNote = (request: AuthRequest, response: Response) => {
   const { id } = request.body;
   pool.query(
     `DELETE From notes 

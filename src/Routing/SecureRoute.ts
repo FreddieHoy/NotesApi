@@ -1,9 +1,10 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { pool, secret } from "../dbPool";
+import { AuthRequest } from "./types";
 
 export const secureRoute = (
-  request: Request,
+  request: AuthRequest,
   response: Response,
   next: NextFunction
 ) => {
