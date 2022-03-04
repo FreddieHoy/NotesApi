@@ -76,13 +76,6 @@ export const logInUser = (
   // There is no types on the body - might be a way to define this?
   const { email, password } = request.body;
 
-  // console.log("loggin in ATTapemttTTT");
-
-  // if (request.isAuthenticated()) {
-  //   console.log("request", request);
-  //   response.json({ message: `Welcome back !` });
-  // }
-  // next();
   pool.query(
     "SELECT * FROM users WHERE email = $1",
     [email],
