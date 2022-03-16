@@ -2,6 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import * as db from "./src/Routing/Users";
 import { router } from "./src/Routing/Router";
+import cors from "cors";
 
 import dotEnv from "dotenv";
 
@@ -14,6 +15,12 @@ app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
     extended: true,
+  })
+);
+
+app.use(
+  cors({
+    origin: "http://localhost:3000",
   })
 );
 

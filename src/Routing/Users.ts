@@ -75,6 +75,7 @@ export const logInUser = (
 ) => {
   // There is no types on the body - might be a way to define this?
   const { email, password } = request.body;
+  console.log("login", request.body);
 
   pool.query(
     "SELECT * FROM users WHERE email = $1",
@@ -117,6 +118,8 @@ export const logInUser = (
 
 export const registerUser = async (request: Request, response: Response) => {
   const { name, email, password, confirmPassword } = request.body;
+
+  console.log("register", request.body);
 
   if (!name || !email || !password || !confirmPassword) {
     console.log("Please enter all fields");
