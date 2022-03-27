@@ -11,8 +11,10 @@ export const getNotes = (request: AuthRequest, response: Response) => {
     [userId],
     (error, results) => {
       if (error) {
+        console.log(error);
         throw error;
       }
+      console.log("got note");
       response.status(200).json(results.rows);
     }
   );

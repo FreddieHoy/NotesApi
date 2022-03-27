@@ -6,7 +6,7 @@ export const pool = new Pool({
   user: process.env.DB_USER || "me",
   host: process.env.DB_HOST || "localhost",
   database: process.env.DB_NAME || "api",
-  password: process.env.DB_PASS || "password",
+  password: process.env.DB_PASS || "password", // TODO ADD TO >.env
   port: 5432,
 });
 

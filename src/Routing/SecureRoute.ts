@@ -1,5 +1,6 @@
 import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import type { JwtPayload } from "jsonwebtoken";
 import { pool, secret } from "../dbPool";
 import { AuthRequest } from "./types";
 
@@ -16,6 +17,7 @@ export const secureRoute = (
   }
 
   const token = request.headers.authorization.replace("Bearer ", "");
+  console.log("we have a token", token);
 
   jwt.verify(token, secret, (err, payload) => {
     if (err) return response.sendStatus(401);
@@ -25,7 +27,7 @@ export const secureRoute = (
     // todo I shouldn't need the userId at this point.. should be able to find the user from token or something
     const userId = payload.sub;
 
-    if (userId) {
+    if (userId && isJWTPayload(payload)) {
       pool.query(
         "SELECT * FROM users WHERE id = $1",
         [userId],
@@ -47,4 +49,8 @@ export const secureRoute = (
       response.sendStatus(404).json("No user found please login again");
     }
   });
+};
+
+const isJWTPayload = (payload: string | JwtPayload): payload is JwtPayload => {
+  return typeof payload === "object";
 };
