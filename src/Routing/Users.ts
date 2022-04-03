@@ -105,8 +105,11 @@ export const logInUser = (
           const token = jwt.sign({ sub: user.id }, secret, {
             expiresIn: "6h",
           });
+
+          response.cookie("token", token, { httpOnly: true });
+
           response.json({
-            message: `Welcome back ${user.name}!`,
+            message: `Welcome back ${user.name}! (With Cookie)`,
             token,
             user,
           });

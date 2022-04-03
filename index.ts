@@ -2,6 +2,8 @@ import express from "express";
 import bodyParser from "body-parser";
 import { router } from "./src/Routing/Router";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+import jwt from "jsonwebtoken";
 
 import dotEnv from "dotenv";
 
@@ -14,6 +16,14 @@ app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
     extended: true,
+  })
+);
+
+app.use(cookieParser());
+app.use(
+  jwt({
+    secret: "secret123",
+    getToken: (req) => req.cookies.token,
   })
 );
 
