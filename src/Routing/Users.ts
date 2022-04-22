@@ -75,7 +75,7 @@ export const logInUser = (
 ) => {
   // There is no types on the body - might be a way to define this?
   const { email, password } = request.body;
-  console.log("login", request.body);
+  console.log("login resolver", request.body);
 
   pool.query(
     "SELECT * FROM users WHERE email = $1",
@@ -110,7 +110,6 @@ export const logInUser = (
 
           response.json({
             message: `Welcome back ${user.name}! (With Cookie)`,
-            token,
             user,
           });
         }

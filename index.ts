@@ -20,12 +20,6 @@ app.use(
 );
 
 app.use(cookieParser());
-app.use(
-  jwt({
-    secret: "secret123",
-    getToken: (req) => req.cookies.token,
-  })
-);
 
 app.use(
   cors({

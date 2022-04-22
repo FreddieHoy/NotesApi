@@ -16,7 +16,10 @@ export const secureRoute = (
     return response.sendStatus(401);
   }
 
-  const token = request.headers.authorization.replace("Bearer ", "");
+  console.log("cookie", request.cookies.token);
+  console.log("header", request.headers.authorization);
+
+  const token: string = request.cookies.token;
 
   jwt.verify(token, secret, (err, payload) => {
     if (err) return response.sendStatus(401);
