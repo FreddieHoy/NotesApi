@@ -23,6 +23,21 @@ export const getUserById = (request: Request, response: Response) => {
   });
 };
 
+export const getMe = (request: Request, response: Response) => {
+  const id = parseInt(request.params.id);
+  const token = request.cookies.token;
+  pool.query(
+    "SELECT * FROM users WHERE token = $1",
+    [token],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).json(results.rows);
+    }
+  );
+};
+
 export const createUser = (request: Request, response: Response) => {
   const { name, email } = request.body;
   pool.query(
@@ -112,6 +127,19 @@ export const logInUser = (
             message: `Welcome back ${user.name}! (With Cookie)`,
             user,
           });
+
+          pool.query(
+            "UPDATE users SET token = $1 WHERE email = $2",
+            [token, email],
+            (error, result) => {
+              if (error) {
+                console.log("error from db query", error.message);
+                throw error;
+              }
+
+              console.log("saved token");
+            }
+          );
         }
       });
     }
@@ -144,7 +172,7 @@ export const registerUser = async (request: Request, response: Response) => {
         console.log("Email already registered");
       } else {
         pool.query(
-          "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *",
+          "INSERT INTO users (name, email, password) VALUES ($1, $2, $3, $4) RETURNING *",
           [name, email, hashedPassword],
           (error, result) => {
             if (error) {

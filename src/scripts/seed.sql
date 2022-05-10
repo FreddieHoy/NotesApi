@@ -16,7 +16,8 @@ CREATE TABLE users (
   ID SERIAL PRIMARY KEY,
   name VARCHAR(30),
   email VARCHAR(50),
-  password VARCHAR(100)
+  password VARCHAR(100),
+  token VARCHAR(200)
 );
 
 CREATE TABLE notes (
