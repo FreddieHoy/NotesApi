@@ -6,6 +6,7 @@ import { secureRoute } from "./SecureRoute";
 export const router = Router();
 
 router.post("/login", UserDb.logInUser);
+router.post("/logout", UserDb.logOut);
 router.post("/register", UserDb.registerUser);
 
 router.get("/notes", secureRoute, NoteDb.getNotes);
@@ -14,8 +15,4 @@ router.post("/notes", secureRoute, NoteDb.createNote);
 router.put("/notes/:id", secureRoute, NoteDb.editNote);
 router.delete("/notes/:id", secureRoute, NoteDb.deleteNote);
 
-router.get("/users", secureRoute, UserDb.getUsers);
 router.get("/me", secureRoute, UserDb.getMe);
-// app.post("/users", db.createUser);
-// app.put("/users/:id", db.updateUser);
-// app.delete("/users/:id", db.deleteUser);
