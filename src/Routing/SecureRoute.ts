@@ -9,20 +9,17 @@ export const secureRoute = (
   response: Response,
   next: NextFunction
 ) => {
-  if (!request.headers.token) {
+  if (!request.cookies.token) {
     return response.sendStatus(401);
   }
 
   const token: string = request.cookies.token;
-  console.log(token);
+  console.log("token ", request.cookies);
 
   jwt.verify(token, secret, (err, payload) => {
     if (err) return response.sendStatus(401);
 
     if (!payload) throw new Error("No payload on request");
-
-    // todo I shouldn't need the userId at this point.. should be able to find the user from token or something
-    // const userId = payload.sub;
 
     if (token && isJWTPayload(payload)) {
       pool.query(

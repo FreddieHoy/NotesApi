@@ -24,8 +24,8 @@ export const getUserById = (request: Request, response: Response) => {
 };
 
 export const getMe = (request: Request, response: Response) => {
-  const id = parseInt(request.params.id);
   const token = request.cookies.token;
+  console.log("get me token", token);
   pool.query(
     "SELECT * FROM users WHERE token = $1",
     [token],
