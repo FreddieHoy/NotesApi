@@ -6,7 +6,7 @@ import { secureRoute } from "./SecureRoute";
 export const router = Router();
 
 router.post("/login", UserDb.logInUser);
-router.post("/logout", UserDb.logOut);
+router.post("/logout", secureRoute, UserDb.logOut);
 router.post("/register", UserDb.registerUser);
 
 router.get("/notes", secureRoute, NoteDb.getNotes);

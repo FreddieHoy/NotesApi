@@ -9,15 +9,18 @@ export const secureRoute = (
   response: Response,
   next: NextFunction
 ) => {
-  if (!request.cookies.token) {
+  if (!request.cookies.authToken) {
+    console.log("not here");
     return response.sendStatus(401);
   }
 
-  const token: string = request.cookies.token;
-  console.log("token ", request.cookies);
+  const token: string = request.cookies.authToken;
 
   jwt.verify(token, secret, (err, payload) => {
-    if (err) return response.sendStatus(401);
+    if (err) {
+      console.log("here");
+      return response.sendStatus(401);
+    }
 
     if (!payload) throw new Error("No payload on request");
 

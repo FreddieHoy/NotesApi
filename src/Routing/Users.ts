@@ -4,7 +4,7 @@ import { pool, secret } from "../dbPool";
 import bcrypt from "bcrypt";
 
 export const getMe = (request: Request, response: Response) => {
-  const token = request.cookies.token;
+  const token = request.cookies.authToken;
   pool.query(
     "SELECT * FROM users WHERE token = $1",
     [token],
@@ -43,17 +43,17 @@ export const logInUser = (
 
       bcrypt.compare(password, hashedPassword, function (err, result) {
         if (err) {
-          console.log("Error from compare", err.message);
+          throw new Error("Error from bycrpt compare: " + err.message);
         }
 
         if (!result) {
-          console.log("Incorrect");
+          throw new Error("Incorrect");
         } else {
           const token = jwt.sign({ sub: user.id }, secret, {
             expiresIn: "6h",
           });
 
-          response.cookie("token", token, { httpOnly: true });
+          response.cookie("authToken", token, { httpOnly: true });
 
           response.json({
             message: `Welcome back ${user.name}! (With Cookie)`,
@@ -65,11 +65,8 @@ export const logInUser = (
             [token, email],
             (error, result) => {
               if (error) {
-                console.log("error from db query", error.message);
-                throw error;
+                throw new Error("error from db query:  " + error.message);
               }
-
-              console.log("saved token");
             }
           );
         }
@@ -78,21 +75,27 @@ export const logInUser = (
   );
 };
 
-export const logOut = (
-  request: Request,
-  response: Response,
-  next: NextFunction
-) => {
-  // There is no types on the body - might be a way to define this?
-  const { id } = request.body;
+export const logOut = (request: Request, response: Response) => {
+  const userId = request.body.userId;
 
-  pool.query("UPDATE users SET token = NULL WHERE id = $1", [id], (error) => {
-    if (error) {
-      console.log("error from db query", error.message);
-      throw error;
+  if (!userId) {
+    throw new Error("No user id found");
+  }
+
+  pool.query(
+    "UPDATE users SET token = NULL WHERE id = $1",
+    [userId],
+    (error, res) => {
+      if (error) {
+        throw new Error("logout error: " + error.message);
+      }
+
+      response
+        .status(200)
+        .clearCookie("authToken")
+        .send("Successfully logged out");
     }
-    response.status(200);
-  });
+  );
 };
 
 export const registerUser = async (request: Request, response: Response) => {
@@ -113,17 +116,17 @@ export const registerUser = async (request: Request, response: Response) => {
     [email],
     (err, results) => {
       if (err) {
-        console.log("error from dbquery", err.message);
+        throw new Error("error from dbquery: " + err.message);
       }
       if (results.rows.length > 0) {
-        console.log("Email already registered");
+        throw new Error("Email already registered");
       } else {
         pool.query(
           "INSERT INTO users (name, email, password) VALUES ($1, $2, $3, $4) RETURNING *",
           [name, email, hashedPassword],
           (error, result) => {
             if (error) {
-              console.log("error from reg db", error.message);
+              throw new Error("error from reg db:" + error.message);
               throw error;
             }
             // should have safer type checking..
