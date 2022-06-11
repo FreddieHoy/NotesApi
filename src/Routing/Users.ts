@@ -17,12 +17,7 @@ export const getMe = (request: Request, response: Response) => {
   );
 };
 
-export const logInUser = (
-  request: Request,
-  response: Response,
-  next: NextFunction
-) => {
-  // There is no types on the body - might be a way to define this?
+export const logInUser = (request: Request, response: Response) => {
   const { email, password } = request.body;
 
   pool.query(

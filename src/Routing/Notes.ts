@@ -3,7 +3,6 @@ import { pool } from "../dbPool";
 import { AuthRequest } from "./types";
 
 export const getNotes = (request: AuthRequest, response: Response) => {
-  // typing isn't able to find jwt
   const userId = request.user?.sub;
 
   pool.query(
@@ -14,7 +13,6 @@ export const getNotes = (request: AuthRequest, response: Response) => {
         console.log(error);
         throw error;
       }
-      console.log("got note");
       response.status(200).json(results.rows);
     }
   );
@@ -36,7 +34,8 @@ export const getNote = (request: AuthRequest, response: Response) => {
   );
 };
 
-// Feels as though now that I have logged in I shouldn't need to search by userId
+// TODO Change to use token and not user id
+// const token = request.cookies.authToken;
 export const createNote = (request: AuthRequest, response: Response) => {
   const { heading, content, toDoItem, checked } = request.body;
   const userId = request.user?.sub;
