@@ -10,7 +10,6 @@ export const secureRoute = (
   next: NextFunction
 ) => {
   if (!request.cookies.authToken) {
-    console.log("not here");
     return response.sendStatus(401);
   }
 
@@ -18,7 +17,6 @@ export const secureRoute = (
 
   jwt.verify(token, secret, (err, payload) => {
     if (err) {
-      console.log("here");
       return response.sendStatus(401);
     }
 
