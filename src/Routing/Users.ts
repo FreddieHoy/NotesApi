@@ -106,8 +106,7 @@ export const registerUser = async (request: Request, response: Response) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   pool.query(
-    `SELECT * FROM users
-        WHERE email = $1`,
+    `SELECT * FROM users WHERE email = $1`,
     [email],
     (err, results) => {
       if (err) {
@@ -117,7 +116,7 @@ export const registerUser = async (request: Request, response: Response) => {
         throw new Error("Email already registered");
       } else {
         pool.query(
-          "INSERT INTO users (name, email, password) VALUES ($1, $2, $3, $4) RETURNING *",
+          "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *",
           [name, email, hashedPassword],
           (error, result) => {
             if (error) {
