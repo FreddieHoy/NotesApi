@@ -12,7 +12,7 @@ export interface AuthRequest extends Request {
 //   heading: string;
 //   content: string;
 //   // date_created: Date;
-//   toDoItem: boolean;
+//   todoitem: boolean;
 //   checked?: boolean;
 // };
 

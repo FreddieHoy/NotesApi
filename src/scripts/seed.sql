@@ -25,6 +25,6 @@ CREATE TABLE notes (
   userId VARCHAR(100) NOT NULL,
   heading VARCHAR(100) NOT NULL,
   content VARCHAR(450),
-  toDoItem BOOLEAN NOT NULL,
+  todoitem BOOLEAN NOT NULL,
   checked BOOLEAN
 );

@@ -37,12 +37,12 @@ export const getNote = (request: AuthRequest, response: Response) => {
 // TODO Change to use token and not user id
 // const token = request.cookies.authToken;
 export const createNote = (request: AuthRequest, response: Response) => {
-  const { heading, content, toDoItem, checked } = request.body;
+  const { heading, content, todoitem, checked } = request.body;
   const userId = request.user?.sub;
 
   pool.query(
-    "INSERT INTO notes (userId, heading, content, toDoItem, checked) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-    [userId, heading, content, toDoItem, checked],
+    "INSERT INTO notes (userId, heading, content, todoitem, checked) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+    [userId, heading, content, todoitem, checked],
     (error, results) => {
       if (error) {
         throw error;
@@ -53,18 +53,18 @@ export const createNote = (request: AuthRequest, response: Response) => {
 };
 
 export const editNote = (request: AuthRequest, response: Response) => {
-  const { id, heading, content, toDoItem, checked } = request.body;
+  const { id, heading, content, todoitem, checked } = request.body;
 
   pool.query(
     `UPDATE notes SET  
       heading = $1,
       content = $2,
-      toDoItem = $3,
+      todoitem = $3,
       checked = $4
       WHERE id = $5 
       RETURNING *
-      `,
-    [heading, content, toDoItem, checked, id],
+    `,
+    [heading, content, todoitem, checked, id],
     (error, results) => {
       if (error) {
         throw error;
