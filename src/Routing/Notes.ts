@@ -75,7 +75,7 @@ export const editNote = (request: AuthRequest, response: Response) => {
 };
 
 export const deleteNote = (request: AuthRequest, response: Response) => {
-  const { id } = request.body;
+  const id = request.params.id;
   pool.query(
     `DELETE From notes 
       WHERE id = $1
@@ -85,7 +85,7 @@ export const deleteNote = (request: AuthRequest, response: Response) => {
       if (error) {
         throw error;
       }
-      response.status(200).json(results.rows);
+      response.status(200);
     }
   );
 };
