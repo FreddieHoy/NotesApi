@@ -86,6 +86,7 @@ export const deleteNote = (request: AuthRequest, response: Response) => {
         throw error;
       }
       response.status(200);
+      response.end();
     }
   );
 };
