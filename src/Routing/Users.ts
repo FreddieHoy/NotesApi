@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { pool, secret } from "../dbPool";
 import bcrypt from "bcrypt";
@@ -31,18 +31,30 @@ export const logInUser = (request: Request, response: Response) => {
       const user = results.rows[0];
 
       if (!user) {
-        throw new Error("User not found.");
+        response.status(404).json({
+          message: "User not found.",
+        });
+        response.end();
+        return;
       }
 
       const { password: hashedPassword } = user;
 
       bcrypt.compare(password, hashedPassword, function (err, result) {
         if (err) {
-          throw new Error("Error from bycrpt compare: " + err.message);
+          response.status(500).json({
+            message: "Error from bycrpt compare: " + err.message,
+          });
+          response.end();
+          return;
         }
 
         if (!result) {
-          throw new Error("Incorrect");
+          response.status(500).json({
+            message: "Incorrect password",
+          });
+          response.end();
+          return;
         } else {
           const token = jwt.sign({ sub: user.id }, secret, {
             expiresIn: "6h",
@@ -58,9 +70,13 @@ export const logInUser = (request: Request, response: Response) => {
           pool.query(
             "UPDATE users SET token = $1 WHERE email = $2",
             [token, email],
-            (error, result) => {
+            (error) => {
               if (error) {
-                throw new Error("error from db query:  " + error.message);
+                response.status(500).json({
+                  message: "error from db query:  " + error.message,
+                });
+                response.end();
+                return;
               }
             }
           );
