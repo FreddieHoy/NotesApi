@@ -4,11 +4,7 @@ import type { JwtPayload } from "jsonwebtoken";
 import { pool, secret } from "../dbPool";
 import { AuthRequest } from "./types";
 
-export const secureRoute = (
-  request: AuthRequest,
-  response: Response,
-  next: NextFunction
-) => {
+export const secureRoute = (request: AuthRequest, response: Response, next: NextFunction) => {
   if (!request.cookies.authToken) {
     return response.sendStatus(401);
   }
@@ -23,23 +19,19 @@ export const secureRoute = (
     if (!payload) throw new Error("No payload on request");
 
     if (token && isJWTPayload(payload)) {
-      pool.query(
-        "SELECT * FROM users WHERE token = $1",
-        [token],
-        (error, results) => {
-          if (error) {
-            throw error;
-          }
-
-          const user = results.rows[0];
-
-          if (!user) return response.sendStatus(401);
-
-          request.user = payload;
-
-          next();
+      pool.query("SELECT * FROM users WHERE token = $1", [token], (error, results) => {
+        if (error) {
+          throw error;
         }
-      );
+
+        const user = results.rows[0];
+
+        if (!user) return response.sendStatus(401);
+
+        request.user = payload;
+
+        next();
+      });
     } else {
       response.sendStatus(404).json("No user found please login again");
     }

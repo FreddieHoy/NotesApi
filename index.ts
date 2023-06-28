@@ -24,6 +24,7 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: "http://localhost:3000",
+    credentials: true,
   })
 );
 
@@ -34,5 +35,5 @@ app.get("/", (request, response) => {
 app.use(router);
 
 app.listen(port, () => {
-  console.log(`App running on port ${port}.`);
+  console.log(`API now running on port ${port}.`);
 });
