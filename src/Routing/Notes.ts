@@ -53,7 +53,8 @@ export const createNote = (request: AuthRequest, response: Response) => {
 };
 
 export const editNote = (request: AuthRequest, response: Response) => {
-  const { id, heading, content, todoitem, checked } = request.body;
+  const { heading, content, todoitem, checked } = request.body;
+  const id = request.params.id;
 
   pool.query(
     `UPDATE notes SET  

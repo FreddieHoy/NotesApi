@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 
 export const getMe = (request: Request, response: Response) => {
   const token = request.cookies.authToken;
-  console.log("token", token);
+
   pool.query("SELECT * FROM users WHERE token = $1", [token], (error, results) => {
     if (error) {
       throw error;
